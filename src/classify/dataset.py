@@ -10,14 +10,14 @@ from classify.utils import train_augs
 
 
 class LeafDataset(Dataset):
-    def __init__(self, root_dir, fp, mode='train_img'):
+    def __init__(self, root_dir, filename, label_file="label.txt"):
         self.root_dir = root_dir
-        self.mode = mode
-        self.fp = fp
-        self.data = pandas.DataFrame(pandas.read_csv(fp))
+        self.filename = filename
+        self.data = pandas.DataFrame(pandas.read_csv(os.path.join(root_dir, filename)))
         self.data_fetcher = None
-        labels = self.data['label'].drop_duplicates().values.tolist()
-        self.labels = {label:idx for idx, label in enumerate(labels)}
+        with open(label_file, 'r') as f:
+            label_list = f.readlines()
+        self.labels = {label.replace('\n', '').replace('\r', ''):i for i, label in enumerate(label_list)}
         
     def __len__(self):
         return len(self.data)
@@ -27,5 +27,5 @@ class LeafDataset(Dataset):
         if idx == 0:
             self.data_fetcher = zip(self.data['image'], self.data['label'])
         img, label = next(self.data_fetcher)
-        fp = os.path.join(self.root_dir, self.mode, label, f"{img}.jpg")
+        fp = os.path.join(self.root_dir, img)
         return train_augs(Image.open(fp)), torch.as_tensor(self.labels[label])
