@@ -15,7 +15,7 @@ class LeafDataset(Dataset):
         self.filename = filename
         self.data = pandas.DataFrame(pandas.read_csv(os.path.join(root_dir, filename)))
         self.data_fetcher = None
-        with open(label_file, 'r') as f:
+        with open(os.path.join(root_dir, label_file), 'r') as f:
             label_list = f.readlines()
         self.labels = {label.replace('\n', '').replace('\r', ''):i for i, label in enumerate(label_list)}
         

@@ -39,6 +39,6 @@ def get_tmp_label_file(root_dir, src,
 
 
 if __name__ == "__main__":
-    src_dir = r"D:\datasets\classify-leaves"
+    src_dir = r"/home/dcd/zww/data/classify-leaves"
     src_file = "train.csv"
     get_tmp_label_file(src_dir, src_file)

@@ -1,8 +1,11 @@
-from torchvision import transforms
+import os
 
 import torch
+from torchvision import transforms
+
 import numpy as np
 from PIL import Image
+import matplotlib.pyplot as plt
 
 
 # 数据增强和预处理
@@ -33,3 +36,27 @@ def pre_process(image_path, form='RGB', classify='img'):
             np_img = np_img[np.newaxis, :].astype(np.int64)
         tensor_np_img = torch.as_tensor(np_img)
         return tensor_np_img
+
+
+def axis_plot(title, x: dict, y: dict, save=True, save_dir='tmp'):
+    r"""二维坐标图，可用户画dice,loss,precision,recall等随epoch的变化曲线.
+
+    Args:
+        title: 二维坐标图名称
+        x: x坐标集，字典类型，{'name':'axis name', 'list': [...]}
+        y: y坐标集，字典类型，{'name':'axis name', 'list': [...]}
+        save: 是否保存图像
+    """
+    fig, axis = plt.subplots()
+    axis.set_title(title)
+    axis.set_xlabel(x['name'])
+    axis.set_ylabel(y['name'])
+    axis.plot(x['list'], y['list'])
+    # 重新计算坐标轴范围限制
+    axis.relim()
+    # 根据新的范围更新视图
+    axis.autoscale_view()
+    if save:
+        plt.savefig(os.path.join(save_dir, f'{title.replace(" ", "_")}.png'))
+    else:
+        plt.show()
