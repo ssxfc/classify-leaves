@@ -3,6 +3,7 @@ import os
 import torch
 from torchvision import transforms
 
+import uuid
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
@@ -60,3 +61,21 @@ def axis_plot(title, x: dict, y: dict, save=True, save_dir='tmp'):
         plt.savefig(os.path.join(save_dir, f'{title.replace(" ", "_")}.png'))
     else:
         plt.show()
+
+
+def draw(images, gt_label_list, pred_label_list, rows=3, cols=3, dest="./tmp"):
+    r"""图像分类画图"""
+    batch_size = images.size(0)
+    scale = rows * cols
+    fig, ax = plt.subplots(nrows=rows, ncols=cols)
+    for i in range(batch_size):
+        if batch_size == 1:
+            ax = [ax,]
+        if i == scale:
+            break
+        ax[i // cols, i % 3].set_title(f'GT:{gt_label_list[i]}\PR:{pred_label_list[i]}', fontsize=8)
+        ax[i // cols, i % 3].imshow(images[i].permute(1, 2, 0).numpy())
+        ax[i // cols, i % 3].set_xticks([]), ax[i // cols, i % 3].set_yticks([])
+    plt.subplots_adjust(wspace=0.5, hspace=0.5)
+    plt.savefig(os.path.join(dest, f'{uuid.uuid1()}.png'))
+    plt.close()

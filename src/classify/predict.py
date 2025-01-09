@@ -9,6 +9,9 @@ from torchvision import models
 from tqdm import tqdm
 
 import classify.dataset as ds
+from classify.utils import draw
+
+import random
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +37,27 @@ def infer(model: nn.Module, test_loader, device):
     logger.info(f"Test Accuracy: {accuracy}")
 
 
+def infer_with_draw(model: nn.Module, test_loader, device):
+    model.eval()
+    idx_2_label = test_loader.dataset.idx_2_label
+    with torch.no_grad():
+        iter = test_loader.__iter__()
+        n = random.randint(1, 9)
+        for i in range(n):
+            images, labels = next(iter)
+        # move images and labels to correct device and type
+        images = images.to(device=device, dtype=torch.float32)
+        labels = labels.to(device=device, dtype=torch.long)
+        # predict the label
+        with torch.autocast(device.type if device.type != 'mps' else 'cpu', enabled=True):
+            logits = model(images)
+        # 推理
+        pred = F.softmax(logits, dim=1).argmax(dim=1)
+        gt_label_list = [idx_2_label[idx] for idx in labels]
+        pred_label_list = [idx_2_label[idx] for idx in pred]
+        draw(images.cpu(), labels, pred)
+
+
 if __name__ == "__main__":
     root_dir = r"/home/dcd/zww/data/classify-leaves"
     fp = r"tmp_test.csv"
@@ -50,4 +74,4 @@ if __name__ == "__main__":
     model.load_state_dict(state_dict)
     model = model.to(device=device)
 
-    infer(model, test_loader, device)
+    infer_with_draw(model, test_loader, device)

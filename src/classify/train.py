@@ -62,6 +62,9 @@ def train(model, train_dataloader, val_dataloader, device, epochs=200):
                     {"name": "acc",
                         "list":acc_list},
                     True)
+    with open("loss.txt", 'w') as f:
+        for j in train_loss_list:
+            f.write(str(j) + "\n")
 
 
 if __name__ == "__main__":
